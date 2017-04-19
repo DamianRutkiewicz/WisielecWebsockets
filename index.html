@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>wisielec</title>
+	<meta charset="utf-8"/>
+	<style type="text/css">
+		body{
+			background-color: black;
+			color:white;
+			text-align: center;
+			margin: 0;
+			padding: 0;
+		}
+		.container{
+			width: 80%;
+			min-width: 600px;
+			margin: 0 auto;
+			padding-top: 50px;
+		}
+		.question{
+			width: 100%;
+			height: 50px;
+			font-size: 25px;
+			line-height: 50px;
+		}
+		.answer{
+			width: 100%;
+			height: 50px;
+			font-size: 25px;
+			line-height: 50px;
+			margin-top: 60px;
+		}
+		form{
+			position: absolute;
+			bottom: 50px;
+			background-color: #2B075E;
+			padding: 20px;
+			width: 100%;
+			box-sizing: border-box;
+			-webkit-box-shadow: inset 0px 3px 11px 1px rgba(0,0,0,1);
+-moz-box-shadow: inset 0px 3px 11px 1px rgba(0,0,0,1);
+box-shadow: inset 0px 3px 11px 1px rgba(0,0,0,1);
+		}
+		input{
+			width: 70%;
+			border: none;
+			height: 30px;
+			font-size: 22px;
+		}
+		button{
+			min-width: 100px;
+			border: none;
+			height: 34px;
+			transition: 0.6s all linear;
+			background-color: #5DE800;
+			cursor: pointer;
+		}
+		button:hover{
+			background-color: #E6FF00;
+		}
+		.left-sidebar{
+			position: absolute;
+			width: 250px;
+			height: 300px;
+			overflow: hidden;
+		}
+		.right-sidebar{
+			position: absolute;
+			width: 200px;
+			height: 300px;
+			right: 0;
+			top: 0;
+		}
+		#shots{
+			position: absolute;
+			bottom: 0;
+		}
+		#shots li{
+			text-align: left;
+			text-decoration: none;
+			list-style: none;
+			
+		}
+		.odp{
+			position: absolute;
+			width: 200px;
+			height: 200px;
+			top: 300px;
+			
+
+		}
+		#odp{
+			list-style: none;
+			text-decoration: none;
+		}
+		.koniec{
+			display: none;
+			z-index: 100;
+			position: fixed;
+			background-color: black;
+			width: 100%;
+			height: 100vh;
+			line-height: 100vh;
+			transition: 1s all linear;
+		}
+	</style>
+	<script src="bundle.js"></script>
+</head>
+<body>
+	<div class="koniec" id="win">
+		<h1>Wygrałes grę !</h1>
+	</div>
+	<div class="koniec" id="lose">
+		<h1>Koniec gry ... przegrałes!</h1>
+	</div>	
+	<div class="conatiner">
+		<div class="left-sidebar">
+			<ul id="shots">
+				
+			</ul>
+		</div>
+		<div class="odp">
+			<h3>odpowiedzi:</h3>
+			<ul id="odp">
+				
+			</ul>
+		</div>
+		<div class="image"><img id="szubienica" src="http://damianrutkiewicz.pl/images/s0.jpg"/></div>
+		<div class="right-sidebar"></div>
+		<div class="question">Jakieś pytanie w stylu ile potrzeba blondynek do wkrecenia żarówek ?</div>
+		<div class="answer">jakas odpowiedz</div>
+
+		<form action="">
+              <input id="message" autocomplete="off" type="text" />
+              <button id="send">Send</button>
+        </form>
+	</div>
+		<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+        <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+        <script>
+        $(document).ready(function(){
+
+              	socket.emit('load', $('#message').val());
+           
+        })
+            // Tworzymy zmienną, do której przypisujemy mechanizm Socket.IO
+              var socket = io();
+
+              // Wysyłając formularz wysyłamy do naszego serwera Node.JS event 'chat message', w którym jako drugi parametr przekazujemy wiadomość wpisaną w pole o id 'message'
+              // $('form').submit(function(){
+              //   socket.emit('chat message', $('#message').val());
+              //   $('#message').val('');
+              //   return false;
+              // });
+              // $('form').submit(function(){
+              //   socket.emit('chat message', $('#message').val());
+              //   return false;
+              // });
+
+              $("#send").on("click",function(){
+              	socket.emit('chat message', $('#message').val());
+              	$('#message').val('');
+                return false;
+              })
+
+              
+
+              // Nasłuchujemy eventu 'chat message' wysłanego przez nasz serwer Node.JS. Jako parametr otrzymamy treść wysłanej wiadomości, którą następnie przypisujemy do lisy o id 'messages'
+              socket.on('chat message', function(msg){
+                $('.answer').text(msg[0]).fadeIn(500).delay(2000).fadeOut(1000);
+                $('#odp').append($('<li>').text(msg[0]));
+                $('.question').text(msg[1]);
+
+              });
+              socket.on('load', function(msg){
+                $('.question').text(msg[0]);
+                $("#szubienica").attr("src",msg[1]);
+              });
+              socket.on('bad', function(msg){
+                $('#shots').append($('<li>').text(msg[0]));
+                $("#szubienica").attr("src",msg[1]);
+                if(msg[1]=="http://damianrutkiewicz.pl/images/s9.jpg"){
+                	$("#lose").css({"display":"block"});
+                }
+                
+              });
+              socket.on('win', function(msg){
+                $("#win").css({"display":"block"});
+              });
+       </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "wisielec",
+  "version": "1.0.0",
+  "description": "gra w wisielca",
+  "main": "server.js",
+  "scripts": {
+    "test": "test",
+    "start": "node server.js"
+  },
+  "author": "Damian",
+  "license": "ISC",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "open-browser-webpack-plugin": "0.0.5"
+  }
+}
